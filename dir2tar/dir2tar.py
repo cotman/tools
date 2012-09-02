@@ -14,7 +14,10 @@ verbose = False
 
 def info(message):
     if verbose:
-        print(message)
+        printable = message.encode("iso-8859-15", "backslashreplace")
+        sys.stdout.buffer.write(printable)
+        sys.stdout.write("\n")
+        sys.stdout.flush()
 
 def error(message):
     sys.stderr.write(message + "\n")
@@ -64,7 +67,7 @@ def create_tars(input_dir, output_dir, tars):
     for tar_dir in tars.keys():
         info("Tarring: " + tar_dir)
         output_file = output_dir + os.sep + tars[tar_dir]
-        tar_file = tarfile.open(output_file, "w")
+        tar_file = tarfile.open(output_file, "w", format=tarfile.PAX_FORMAT)
         tar_file.add(tar_dir, arcname=tar_dir.replace(input_dir + os.sep, ""))
         tar_file.close()
         info("Created: " + output_file)
