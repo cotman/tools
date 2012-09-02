@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
 # dir2tar.py
 
 import optparse
 import os
+import re
 import sys
 import tarfile
+
+DIR_SEP_REPLACEMENT = "_____"
+SANITISE_RE = re.compile(r"[ ]")    # Potentially add more here
 
 verbose = False
 
@@ -30,20 +35,21 @@ def identify_tars(input_dir, output_dir, dirs_in_tarname):
             for tar_dir in tars.keys():
                 if tar_dir.startswith(leaf_dir):
                     stored = True
+                    break
             
             if not stored:
                 # Strip the input root from tar name consideration
                 dirs_string = leaf_dir.replace(input_dir + os.sep, "")
                 
                 # Replace directory separators with a safe fixed string, then split
-                dirs_string = dirs_string.replace(os.sep, "___" + os.sep)        
+                dirs_string = dirs_string.replace(os.sep, DIR_SEP_REPLACEMENT + os.sep)        
                 dirs_list = dirs_string.rsplit(os.sep, dirs_in_tarname)
                 
                 # Use the number of directories requested in the tar name
                 requested_dirs_list = dirs_list[-dirs_in_tarname:]
-                tar_name = "".join(requested_dirs_list) + ".tar"
+                tar_name = "".join(requested_dirs_list)
                 
-                tars[leaf_dir] = tar_name
+                tars[leaf_dir] = SANITISE_RE.sub("_", tar_name) + ".tar"
     
     return tars
 
