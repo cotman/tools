@@ -29,6 +29,8 @@ def identify_tars(input_dir, output_dir, dirs_in_tarname):
     Store all unique leaves with a tar name based on the number of end directories passed.
     """
     
+    input_dir_strip = input_dir + os.sep if not input_dir.endswith(os.sep) else input_dir 
+    
     tars = {}
     for dirpath, dirnames, filenames in os.walk(input_dir, topdown=False):
         for dirname in dirnames:
@@ -41,8 +43,7 @@ def identify_tars(input_dir, output_dir, dirs_in_tarname):
                     break
             
             if not stored:
-                # Strip the input root from tar name consideration
-                dirs_string = leaf_dir.replace(input_dir + os.sep, "")
+                dirs_string = leaf_dir.replace(input_dir_strip, "")
                 
                 # Replace directory separators with a safe fixed string, then split
                 dirs_string = dirs_string.replace(os.sep, DIR_SEP_REPLACEMENT + os.sep)        
@@ -58,7 +59,7 @@ def identify_tars(input_dir, output_dir, dirs_in_tarname):
 
 def create_tars(input_dir, output_dir, tars):
     """
-    Takes the input dir and a dictionary of input dir -> tar name.
+    Takes the input dir, output_dir and a dictionary of tar dir -> tar name.
     Creates a .tar file with a structure that discards the input dir at the output dir.
     """
     
@@ -93,6 +94,7 @@ def main():
     
     tars = identify_tars(options.input_dir, options.output_dir, options.dirs_in_tarname)
     
+    print("Tars to create: {0}".format(len(tars.keys())))
     print("Starting...")    
     info("Input directory: " + options.input_dir)
     info("Directories for tar name: " + str(options.dirs_in_tarname))
